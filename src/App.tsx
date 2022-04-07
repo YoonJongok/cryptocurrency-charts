@@ -1,6 +1,6 @@
 import React from "react";
 import { createGlobalStyle } from "styled-components";
-import Layout from "./components/Layout";
+import Container from "./components/Container";
 import Router from "./Router";
 
 const GlobalStyle = createGlobalStyle`
@@ -40,6 +40,13 @@ const GlobalStyle = createGlobalStyle`
     line-height: 1;
     background: ${(props) => props.theme.bgColor};
     color: ${(props) => props.theme.textColor};
+    a {
+      text-decoration:none ;
+      color:${(props) => props.theme.textColor};
+      &:visited {
+       color:${(props) => props.theme.textColor};
+      }
+    }
   }
   menu, ol, ul {
     list-style: none;
