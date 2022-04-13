@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import Container from "../components/Container";
 import { Link } from "react-router-dom";
-import Coin from "./Coin";
 
 const Title = styled.header`
   height: 15%;
@@ -76,7 +75,11 @@ function Coins() {
           {coins &&
             coins.map((coin) => (
               <Card key={coin.id}>
-                <Link to={`/${coin.id}`} state={{ name: coin.name }}>
+                <Link
+                  to={{
+                    pathname: `/${coin.id}`,
+                  }}
+                >
                   <Img
                     src={`https://cryptocurrencyliveprices.com/img/${coin.id}.png`}
                   />

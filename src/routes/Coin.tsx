@@ -1,7 +1,20 @@
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
+import { useQuery } from "react-query";
+
+import { getCoinInfoById, getCoinPriceById } from "../api/coinApi";
+import Chart from "../components/Chart";
 import Container from "../components/Container";
+import {
+  Link,
+  Route,
+  Switch,
+  useHistory,
+  useLocation,
+  useParams,
+  useRouteMatch,
+} from "react-router-dom";
+import Price from "../components/Price";
+
 const Header = styled.header`
   display: flex;
   justify-content: space-between;
@@ -21,7 +34,8 @@ const Title = styled.div`
     opacity: 0.6;
   }
   h3 {
-    font-size: 1.5rem;
+    text-transform: uppercase;
+    font-size: 1.6rem;
   }
 `;
 const BackBtn = styled.button`
@@ -34,19 +48,77 @@ const BackBtn = styled.button`
   font-size: 16px;
   border-radius: 50%;
   transition: all 0.1s ease-in-out;
+  box-shadow: 0px 0px 2px 3px #000000;
+  cursor: pointer;
   &:hover {
     box-shadow: inset 0px 0px 2px 3px rgba(0, 0, 0, 0.93);
-    transform: scale(0.9);
+    transform: scale(1.1);
+  }
+`;
+
+const Description = styled.section`
+  margin: 0.6em 0;
+  padding: 0.5em 0.5rem 0.6em;
+  p {
+    margin-bottom: 0.5em;
+    font-size: 0.9rem;
+    opacity: 0.6;
+    text-transform: uppercase;
+  }
+  h3 {
+    font-size: 1.1rem;
   }
 `;
 const InfoBox = styled.div`
-  padding: 0.5rem;
+  width: 100%;
+  height: 60px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0 auto;
+  background-color: #121521;
+  border-radius: 12px;
+  div {
+    padding: 0.4rem 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    p {
+      margin-bottom: 0.5em;
+      font-size: 0.9rem;
+      opacity: 0.6;
+      text-transform: uppercase;
+    }
+    h3 {
+      font-size: 1.2rem;
+      text-transform: uppercase;
+    }
+  }
 `;
-interface RouterState {
-  state: {
-    name: string;
-  };
-}
+const TabContainer = styled.section`
+  height: 40px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-areas: "a b";
+  gap: 0.8rem;
+  margin: 0.8em 0;
+  text-align: center;
+`;
+const TabItem = styled.div<{ selected: boolean }>`
+  transition: 0.2s ease-in-out;
+  background-color: ${(props) =>
+    props.selected ? props.theme.btnColor : "#121521"};
+  border-radius: 12px;
+  a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+  }
+`;
+
 interface InfoData {
   id: string;
   name: string;
@@ -68,7 +140,7 @@ interface InfoData {
   last_data_at: string;
 }
 
-interface PriceData {
+export interface PriceData {
   id: string;
   name: string;
   symbol: string;
@@ -101,39 +173,83 @@ interface PriceData {
     };
   };
 }
-
+interface RouterState {
+  name: string;
+}
+interface RouterParam {
+  coinId: string;
+}
 function Coin() {
-  const { coinId } = useParams();
-  const { state } = useLocation() as RouterState;
-  const navigate = useNavigate();
-  const [info, setInfo] = useState<InfoData>();
-  const [priceInfo, setPriceInfo] = useState<PriceData>();
+  const { coinId } = useParams<RouterParam>();
+  const { state } = useLocation<RouterState>();
 
-  useEffect(() => {
-    (async () => {
-      const infoData = await (
-        await fetch(`https://api.coinpaprika.com/v1/coins/${coinId}`)
-      ).json();
-      const priceData = await (
-        await fetch(`https://api.coinpaprika.com/v1/tickers/${coinId}`)
-      ).json();
-      console.log(infoData);
-      console.log(priceData);
-      setInfo(infoData);
-      setPriceInfo(priceData);
-    })();
-  }, [coinId]);
+  const chartMatch = useRouteMatch("/:coinId/chart");
+  const priceMatch = useRouteMatch("/:coinId/price");
+  const history = useHistory();
+  const { isLoading: infoLoading, data: infoData } = useQuery<InfoData>(
+    ["coinInfo", coinId],
+    () => getCoinInfoById(coinId as string)
+  );
+
+  const { isLoading: priceLoading, data: priceData } = useQuery<PriceData>(
+    ["priceInfo", coinId],
+    () => getCoinPriceById(coinId as string)
+  );
 
   return (
     <Container>
-      <Header>
-        <Title>
-          <p>Name</p>
-          <h3>{state.name}</h3>
-        </Title>
-        <BackBtn onClick={() => navigate(-1)}>&larr;</BackBtn>
-      </Header>
-      <InfoBox>Coin</InfoBox>
+      {infoLoading || priceLoading ? (
+        <h1>Loading...</h1>
+      ) : (
+        <>
+          {infoData && priceData && (
+            <>
+              <Header>
+                <Title>
+                  <p>Name</p>
+                  <h3>{infoData.name}</h3>
+                </Title>
+                <BackBtn onClick={() => history.push("/")}>&larr;</BackBtn>
+              </Header>
+              <Description>
+                <p>Description:</p>
+                <h3>{infoData.description}</h3>
+              </Description>
+              <InfoBox>
+                <div>
+                  <p>Rank:</p>
+                  <h3>{infoData.rank}</h3>
+                </div>
+                <div>
+                  <p>Symbol:</p>
+                  <h3>{infoData.symbol}</h3>
+                </div>
+                <div>
+                  <p>Price:</p>
+                  <h3>${priceData.quotes.USD.price.toFixed(2)}</h3>
+                </div>
+              </InfoBox>
+              <TabContainer>
+                <TabItem selected={chartMatch !== null}>
+                  <Link to={`/${coinId}/chart`}>Chart</Link>
+                </TabItem>
+                <TabItem selected={priceMatch !== null}>
+                  <Link to={`/${coinId}/price`}>Price</Link>
+                </TabItem>
+              </TabContainer>
+
+              <Switch>
+                <Route path={`/${coinId}/chart`}>
+                  <Chart />
+                </Route>
+                <Route path={`/${coinId}/price`}>
+                  <Price priceData={priceData} />
+                </Route>
+              </Switch>
+            </>
+          )}
+        </>
+      )}
     </Container>
   );
 }

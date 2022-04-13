@@ -1,9 +1,8 @@
-import React from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
 import { createGlobalStyle } from "styled-components";
-import Container from "./components/Container";
 import Router from "./Router";
 
-const GlobalStyle = createGlobalStyle`
+export const GlobalStyle = createGlobalStyle`
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400&display=swap');
   html, body, div, span, applet, object, iframe,
   h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -38,10 +37,10 @@ const GlobalStyle = createGlobalStyle`
     width: 100%;
     height: 100vh;
     line-height: 1;
-    background: ${(props) => props.theme.bgColor};
+    background-color: ${(props) => props.theme.bgColor};
     color: ${(props) => props.theme.textColor};
     a {
-      text-decoration:none ;
+      text-decoration: none;
       color:${(props) => props.theme.textColor};
       &:visited {
        color:${(props) => props.theme.textColor};
@@ -65,11 +64,14 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
+const queryClient = new QueryClient();
 function App() {
   return (
     <>
-      <GlobalStyle />
-      <Router />
+      <QueryClientProvider client={queryClient}>
+        <GlobalStyle />
+        <Router />
+      </QueryClientProvider>
     </>
   );
 }

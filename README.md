@@ -4,9 +4,17 @@
 
 ### Home (Display Coins)
 
-- [ ] Mock the data from api
-- [ ] Display chart with mock data
-- [ ] Design Home
+> - [X] Mock the list of coin data from api
+> - [X] Display card with mock data
+> - [X] Design Home
+
+### Coin page
+
+- [ ] fetch coin info and price info from api
+- [ ] display both information.
+- [X] Make back button
+
+
 
 ### Challenge
 

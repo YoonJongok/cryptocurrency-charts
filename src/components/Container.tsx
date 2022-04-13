@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 const SContainer = styled.div`
   max-width: 480px;
-  height: 680px;
+  height: 800px;
   background-color: ${(props) => props.theme.boxColor};
   margin: 10% auto;
   padding: 1rem 1em;
