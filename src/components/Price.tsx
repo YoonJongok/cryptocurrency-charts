@@ -15,6 +15,7 @@ const PriceBox = styled.div`
   grid-template-columns: 0.4fr 0.6fr;
   border: 2px solid ${(props) => props.theme.bgColor};
   border-radius: 10px;
+  transition: 0.2s ease-in-out;
 `;
 const Item = styled.div`
   width: 100%;
@@ -43,9 +44,9 @@ function Price({ priceData }: PriceProps) {
   return (
     <Container>
       {priceData &&
-        Object.entries(quoteData).map((key) => {
+        Object.entries(quoteData).map((key, i) => {
           return (
-            <PriceBox>
+            <PriceBox key={i}>
               <Item>
                 <h3>{key[0]}</h3>
               </Item>

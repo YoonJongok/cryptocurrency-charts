@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useQuery } from "react-query";
 
-import { getCoinInfoById, getCoinPriceById } from "../api/coinApi";
+import { fetchCoinInfoById, fetchCoinPriceById } from "../api/coinApi";
 import Chart from "../components/Chart";
 import Container from "../components/Container";
 import {
@@ -9,7 +9,6 @@ import {
   Route,
   Switch,
   useHistory,
-  useLocation,
   useParams,
   useRouteMatch,
 } from "react-router-dom";
@@ -181,19 +180,17 @@ interface RouterParam {
 }
 function Coin() {
   const { coinId } = useParams<RouterParam>();
-  const { state } = useLocation<RouterState>();
-
   const chartMatch = useRouteMatch("/:coinId/chart");
   const priceMatch = useRouteMatch("/:coinId/price");
   const history = useHistory();
   const { isLoading: infoLoading, data: infoData } = useQuery<InfoData>(
     ["coinInfo", coinId],
-    () => getCoinInfoById(coinId as string)
+    () => fetchCoinInfoById(coinId as string)
   );
 
   const { isLoading: priceLoading, data: priceData } = useQuery<PriceData>(
     ["priceInfo", coinId],
-    () => getCoinPriceById(coinId as string)
+    () => fetchCoinPriceById(coinId as string)
   );
 
   return (
@@ -240,7 +237,7 @@ function Coin() {
 
               <Switch>
                 <Route path={`/${coinId}/chart`}>
-                  <Chart />
+                  <Chart coinId={coinId} />
                 </Route>
                 <Route path={`/${coinId}/price`}>
                   <Price priceData={priceData} />
